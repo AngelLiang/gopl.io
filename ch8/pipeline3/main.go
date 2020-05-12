@@ -17,6 +17,10 @@ func counter(out chan<- int) {
 	close(out)
 }
 
+/*
+	squarer 函数处于管道的中间，使用两个参数：输入通道和输出通道。
+	in 仅仅用来接收，out 仅仅用来发送
+*/
 func squarer(out chan<- int, in <-chan int) {
 	for v := range in {
 		out <- v * v

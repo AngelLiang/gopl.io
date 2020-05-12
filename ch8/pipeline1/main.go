@@ -22,12 +22,14 @@ func main() {
 
 	// Squarer
 	go func() {
+		// 死循环
 		for {
 			x := <-naturals
 			squares <- x * x
 		}
 	}()
 
+	// 主函数的死循环
 	// Printer (in main goroutine)
 	for {
 		fmt.Println(<-squares)

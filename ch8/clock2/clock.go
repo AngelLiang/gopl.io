@@ -36,6 +36,7 @@ func main() {
 			log.Print(err) // e.g., connection aborted
 			continue
 		}
+		// 现在多个客户端可以同时接收到时间
 		go handleConn(conn) // handle connections concurrently
 	}
 	//!-

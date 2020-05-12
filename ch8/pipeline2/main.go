@@ -23,6 +23,7 @@ func main() {
 
 	// Squarer
 	go func() {
+		// naturals 是 chan
 		for x := range naturals {
 			squares <- x * x
 		}
