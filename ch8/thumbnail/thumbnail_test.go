@@ -38,6 +38,7 @@ func makeThumbnails2(filenames []string) {
 
 //!+3
 // makeThumbnails3 makes thumbnails of the specified files in parallel.
+// makeThumbnails3 并行生成指定文件的缩略图
 func makeThumbnails3(filenames []string) {
 	ch := make(chan struct{})
 	for _, f := range filenames {
@@ -89,10 +90,13 @@ func makeThumbnails5(filenames []string) (thumbfiles []string, err error) {
 		err       error
 	}
 
+	// 使用一个缓冲通道来返回生成的图像文件的名称以及任何错误消息。
 	ch := make(chan item, len(filenames))
+
 	for _, f := range filenames {
 		go func(f string) {
 			var it item
+			// 接收缩略图文件和错误
 			it.thumbfile, it.err = thumbnail.ImageFile(f)
 			ch <- it
 		}(f)
@@ -118,9 +122,12 @@ func makeThumbnails6(filenames <-chan string) int64 {
 	sizes := make(chan int64)
 	var wg sync.WaitGroup // number of working goroutines
 	for f := range filenames {
+		// wg.Add(1) 必须在工作 goroutine 开始之前执行，而不是在中间
 		wg.Add(1)
 		// worker
 		go func(f string) {
+			// wg.Done() 等价于 wg.Add(-1)
+			// 使用 defer 确保发生错误的情况下计数器可以递减
 			defer wg.Done()
 			thumb, err := thumbnail.ImageFile(f)
 			if err != nil {
@@ -133,11 +140,20 @@ func makeThumbnails6(filenames <-chan string) int64 {
 	}
 
 	// closer
+	/*
+		在关闭 sizes 通道之前，等待所有worker结束。
+		这里等待和关闭必须和在sizes通道上面的迭代并行执行。
+		如果将等待操作放在循环之前的主 goroutine 中，因为通道会满，它不会结束；
+		如果放在循环后面，它将不可达，因为没有任何东西可用来关闭通道，循环可能永不结束。
+	*/
 	go func() {
 		wg.Wait()
 		close(sizes)
 	}()
 
+	// chan sizes 将每个文件的大小带回主 goroutine
+	// 使用 range 循环进行接收然后计算总和
+	// 主 goroutine 把大多数时间花在了 range 循环休眠上，等待工作者发送或等待 closer 来关闭通道。
 	var total int64
 	for size := range sizes {
 		total += size
