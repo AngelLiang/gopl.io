@@ -53,6 +53,7 @@ loop:
 		select {
 		case size, ok := <-fileSizes:
 			if !ok {
+				// 跳出 select 和 for
 				break loop // fileSizes was closed
 			}
 			nfiles++

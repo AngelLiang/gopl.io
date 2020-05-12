@@ -20,6 +20,7 @@ import (
 //!+1
 var done = make(chan struct{})
 
+// 创建一个取消通道
 func cancelled() bool {
 	select {
 	case <-done:

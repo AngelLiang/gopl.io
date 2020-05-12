@@ -41,8 +41,10 @@ func main() {
 	var n sync.WaitGroup
 	for _, root := range roots {
 		n.Add(1)
+		// 并发调用 walkDir
 		go walkDir(root, &n, fileSizes)
 	}
+	// 等待所有子 goroutine 结束并关闭 fileSizes 通道
 	go func() {
 		n.Wait()
 		close(fileSizes)
