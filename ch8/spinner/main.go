@@ -17,8 +17,10 @@ func main() {
 	const n = 45
 	fibN := fib(n) // slow
 	fmt.Printf("\rFibonacci(%d) = %d\n", n, fibN)
+	// main 函数返回时，所有的goroutine都暴力地直接终结，然后程序退出。
 }
 
+// 显示正在计算
 func spinner(delay time.Duration) {
 	for {
 		for _, r := range `-\|/` {
@@ -28,6 +30,7 @@ func spinner(delay time.Duration) {
 	}
 }
 
+// 计算斐波那契数列
 func fib(x int) int {
 	if x < 2 {
 		return x
