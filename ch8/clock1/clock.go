@@ -5,6 +5,10 @@
 //!+
 
 // Clock1 is a TCP server that periodically writes the time.
+
+/* 
+	顺序时钟服务器，它以每秒钟一次的频率向客户端发送当前时间
+*/
 package main
 
 import (
@@ -15,6 +19,7 @@ import (
 )
 
 func main() {
+	
 	listener, err := net.Listen("tcp", "localhost:8000")
 	if err != nil {
 		log.Fatal(err)
@@ -25,10 +30,14 @@ func main() {
 			log.Print(err) // e.g., connection aborted
 			continue
 		}
+		// 一次性只能处理一个客户请求，
+		// 第二个客户端必须等到第一个结束才能正常工作，
+		// 因为服务器是顺序的
 		handleConn(conn) // handle one connection at a time
 	}
 }
 
+// 处理一个完整的客户连接
 func handleConn(c net.Conn) {
 	defer c.Close()
 	for {
